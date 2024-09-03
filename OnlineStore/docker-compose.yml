@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  redis:
+    image: redis
+    container_name: my-redis-container
+    ports:
+      - "6379:6379"
+  db:
+    image: postgres
+    container_name: demo_pgdb
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - local_pgdata:/var/lib/postgresql/data
+
+volumes:
+  local_pgdata:
+  pgadmin-data:
