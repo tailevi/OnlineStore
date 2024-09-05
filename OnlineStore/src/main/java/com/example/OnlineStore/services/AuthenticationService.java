@@ -42,16 +42,16 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-
-        var user =userRepo.findByMail(request.getMail())
-                .orElseThrow();
-
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getMail(),
                         request.getPassword()
                 )
         );
+
+        var user =userRepo.findByMail(request.getMail())
+                .orElseThrow();
+
         var jwtToken= jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)

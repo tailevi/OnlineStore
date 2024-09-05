@@ -26,6 +26,9 @@ public class ProductsService {
     public List<Product> getAll() {
         return productRepo.findAll();
     }
+    public String print() {
+        return "hi";
+    }
     @SneakyThrows
     public ResponseEnum deleteProduct(ProductRequest productRequest){
         try {

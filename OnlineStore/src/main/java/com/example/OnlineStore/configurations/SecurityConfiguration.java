@@ -29,17 +29,21 @@ public class SecurityConfiguration {
                 .disable()
                 .authorizeHttpRequests()
                 .requestMatchers("/api/auth/**")
-                .permitAll()
+                .permitAll()  // Allow access to the /api/auth/** without authentication
+                .requestMatchers("/api/product/**")
+                .authenticated()  // Restrict access to /api/v1/products/** to authenticated users
                 .anyRequest()
-                .authenticated()
+                .authenticated()  // Any other request should also be authenticated
                 .and()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Enforce stateless session management
                 .and()
                 .authenticationProvider(authProvider)
-                .addFilterBefore(jwtAuthFilter , UsernamePasswordAuthenticationFilter.class);
-    return http.build();
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);  // Add JWT filter before UsernamePasswordAuthenticationFilter
+
+        return http.build();
     }
+
 
 
 }

@@ -29,7 +29,6 @@ public class Config {
         UserDetailsService userFound =  username ->
                 userRepo.findByMail(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        System.out.println(userFound);
         return userFound;
     }
     @Bean
