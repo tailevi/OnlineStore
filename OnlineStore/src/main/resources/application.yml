@@ -19,6 +19,8 @@ spring:
 logging:
   level:
     org.springframework.web.servlet.handler.HandlerMappingIntrospector: error
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type: TRACE
 #    org.hibernate: debug
 #    org.hibernate.SQL: debug
 key: "2c59275423376651436c477e5c78344c36414468683473666e30613c3f40564c"
