@@ -25,22 +25,6 @@ public class AuthenticationService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private AuthenticationManager authenticationManager;
-
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                request.getEmail(),
-                request.getPassword()
-                )
-        );
-        var user =userRepo.findByMail(request.getEmail())
-                .orElseThrow();
-        var jwtToken= jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
-    }
-
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
                 .firstName(request.getFirstName())
@@ -56,4 +40,23 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .build();
     }
+
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+
+        var user =userRepo.findByMail(request.getMail())
+                .orElseThrow();
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getMail(),
+                        request.getPassword()
+                )
+        );
+        var jwtToken= jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
+    }
+
+
 }

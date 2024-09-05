@@ -26,9 +26,11 @@ public class Config {
     }
     @Bean
     public UserDetailsService userDetailsService(){
-        return username ->
+        UserDetailsService userFound =  username ->
                 userRepo.findByMail(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        System.out.println(userFound);
+        return userFound;
     }
     @Bean
     public AuthenticationProvider authenticationProvider(){
