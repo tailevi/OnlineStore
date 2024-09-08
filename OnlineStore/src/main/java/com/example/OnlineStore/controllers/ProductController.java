@@ -21,8 +21,12 @@ public class ProductController {
     @Autowired
     private ProductsService productsService;
 
+    @GetMapping(value ="/print")
+    public ResponseEntity<String> print(){
+        return ResponseEntity.ok(productsService.print());
+    }
+
     @GetMapping(value ="/getAll")
-   // @Cacheable(key = "#id", value = "Product")
     public ResponseEntity<List<Product>> getAll(){
         return ResponseEntity.ok(productsService.getAll());
     }

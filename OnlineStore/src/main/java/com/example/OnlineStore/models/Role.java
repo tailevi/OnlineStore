@@ -1,7 +1,14 @@
 package com.example.OnlineStore.models;
 
-public enum Role {
-    USER,
-    ADMIN
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
+public enum Role {
+    USER("USER"),
+    ADMIN("ADMIN");
+
+
+    @Getter
+    private final String role;
 }
