@@ -80,26 +80,28 @@ public class ProductsService {
 
     @Transactional
     public GenericResponses updateProduct(@NotNull ProductRequest productRequest){
-        Optional<Product> product = productRepo.findById(productRequest.getId());
+            Optional<Product> productOptional = productRepo.findById(productRequest.getId());
 
-            if (product.isPresent()) {
-                Product existingProduct = product.get();
-                existingProduct.setTitle(productRequest.getTitle());
-                existingProduct.setDescription(productRequest.getDescription());
-                existingProduct.setCategory(productRequest.getCategory());
-                existingProduct.setPrice(productRequest.getPrice());
-                existingProduct.setDiscountPercentage(productRequest.getDiscountPercentage());
-                existingProduct.setRating(productRequest.getRating());
-                existingProduct.setStock(productRequest.getStock());
-                existingProduct.setBrand(productRequest.getBrand());
-                existingProduct.setSku(productRequest.getSku());
-                existingProduct.setWeight(productRequest.getWeight());
-                existingProduct.setWarrantyInformation(productRequest.getWarrantyInformation());
-                existingProduct.setShippingInformation(productRequest.getShippingInformation());
-                existingProduct.setAvailabilityStatus(productRequest.getAvailabilityStatus());
-                existingProduct.setReturnPolicy(productRequest.getReturnPolicy());
-                existingProduct.setThumbnail(productRequest.getThumbnail());
-                existingProduct.setImages(productRequest.getImages());
+            if (productOptional.isPresent()) {
+                Product existingProduct = productOptional.get();
+
+                Optional.ofNullable(productRequest.getTitle()).ifPresent(existingProduct::setTitle);
+                Optional.ofNullable(productRequest.getDescription()).ifPresent(existingProduct::setDescription);
+                Optional.ofNullable(productRequest.getCategory()).ifPresent(existingProduct::setCategory);
+                Optional.ofNullable(productRequest.getPrice()).ifPresent(existingProduct::setPrice);
+                Optional.ofNullable(productRequest.getDiscountPercentage()).ifPresent(existingProduct::setDiscountPercentage);
+                Optional.ofNullable(productRequest.getRating()).ifPresent(existingProduct::setRating);
+                Optional.ofNullable(productRequest.getStock()).ifPresent(existingProduct::setStock);
+                Optional.ofNullable(productRequest.getBrand()).ifPresent(existingProduct::setBrand);
+                Optional.ofNullable(productRequest.getSku()).ifPresent(existingProduct::setSku);
+                Optional.ofNullable(productRequest.getWeight()).ifPresent(existingProduct::setWeight);
+                Optional.ofNullable(productRequest.getWarrantyInformation()).ifPresent(existingProduct::setWarrantyInformation);
+                Optional.ofNullable(productRequest.getShippingInformation()).ifPresent(existingProduct::setShippingInformation);
+                Optional.ofNullable(productRequest.getAvailabilityStatus()).ifPresent(existingProduct::setAvailabilityStatus);
+                Optional.ofNullable(productRequest.getReturnPolicy()).ifPresent(existingProduct::setReturnPolicy);
+                Optional.ofNullable(productRequest.getThumbnail()).ifPresent(existingProduct::setThumbnail);
+                Optional.ofNullable(productRequest.getImages()).ifPresent(existingProduct::setImages);
+
                 productRepo.save(existingProduct);
 
                 return GenericResponses.builder()
