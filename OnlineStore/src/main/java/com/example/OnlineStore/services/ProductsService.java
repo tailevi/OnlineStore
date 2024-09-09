@@ -1,7 +1,6 @@
 package com.example.OnlineStore.services;
-
+import org.springframework.data.redis.core.RedisTemplate;
 import com.example.OnlineStore.exceptions.ProductsServiceException;
-import com.example.OnlineStore.exceptions.RuntimeErrorResponse;
 import com.example.OnlineStore.models.Product;
 import com.example.OnlineStore.payload.request.ProductRequest;
 import com.example.OnlineStore.payload.response.GenericResponses;
@@ -23,6 +22,12 @@ public class ProductsService {
     @Autowired
     private ProductRepo productRepo;
 
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    private static final String PRODUCT_CACHE_PREFIX = "product_";
+
     public List<Product> getAll() {
         return productRepo.findAll();
     }
@@ -30,8 +35,9 @@ public class ProductsService {
     @SneakyThrows
     public ResponseEnum deleteProduct(ProductRequest productRequest){
         try {
-            // Assuming deleteById throws an unchecked exception if the item is not found
             productRepo.deleteById(productRequest.getId());
+            String  cacheKey = PRODUCT_CACHE_PREFIX+ productRequest.getId();
+            redisTemplate.delete(cacheKey);
             return ResponseEnum.DELETED;
         } catch (Exception e) {
             // Handle the exception and throw a custom exception with a descriptive message
@@ -41,9 +47,20 @@ public class ProductsService {
 
     @SneakyThrows
     public Product findById(@NotNull ProductRequest productRequest){
-        return productRepo.findById(productRequest.getId())
-                .orElseThrow(()
-                        -> new ProductsServiceException("Item with ID " + productRequest.getId() + " was not found or could not be deleted"));
+        Long id =  productRequest.getId();
+
+        String cacheKey = PRODUCT_CACHE_PREFIX +id;
+        Product cachedProduct = (Product) redisTemplate.opsForValue().get(cacheKey);
+
+        if (cachedProduct != null) {
+            return cachedProduct;
+        }
+
+        Product product = productRepo.findById(id)
+                .orElseThrow(() -> new ProductsServiceException("Product not found with ID: " + id));
+
+        redisTemplate.opsForValue().set(cacheKey, product);
+        return product;
     }
 
     @SneakyThrows
@@ -101,6 +118,9 @@ public class ProductsService {
                 Optional.ofNullable(productRequest.getImages()).ifPresent(existingProduct::setImages);
 
                 productRepo.save(existingProduct);
+
+                String cacheKey = PRODUCT_CACHE_PREFIX + productRequest.getId();
+                redisTemplate.opsForValue().set(cacheKey, existingProduct);
 
                 return GenericResponses.builder()
                         .id(existingProduct.getId())
