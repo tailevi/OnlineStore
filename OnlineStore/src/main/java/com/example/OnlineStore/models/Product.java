@@ -35,9 +35,8 @@ public class Product implements Serializable {
     String warrantyInformation;
     String shippingInformation;
     String availabilityStatus;
-    //@JsonIgnore
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-//    @EqualsAndHashCode.Exclude
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id", referencedColumnName = "id")
     List<Reviews> reviews;
     String returnPolicy;
     String thumbnail;

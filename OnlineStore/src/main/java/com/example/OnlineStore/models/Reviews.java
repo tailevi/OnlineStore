@@ -1,5 +1,4 @@
 package com.example.OnlineStore.models;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,7 +21,4 @@ public class Reviews implements Serializable {
     String date;
     String reviewerName;
     String reviewerEmail;
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "product_id")
-    Product product;
 }

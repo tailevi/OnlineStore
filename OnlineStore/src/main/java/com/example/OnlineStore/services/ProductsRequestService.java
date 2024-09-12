@@ -73,7 +73,8 @@ public class ProductsRequestService {
                 .date(reviewResponse.getDate())
                 .reviewerName(reviewResponse.getReviewerName())
                 .reviewerEmail(reviewResponse.getReviewerEmail())
-                .product(product).build();
+                //.product(product)
+                .build();
     }
     @SneakyThrows
     public ProductResponse getProductById(@NotNull Long id){

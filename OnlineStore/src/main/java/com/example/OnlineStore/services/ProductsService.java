@@ -1,4 +1,5 @@
 package com.example.OnlineStore.services;
+import org.hibernate.Hibernate;
 import org.springframework.data.redis.core.RedisTemplate;
 import com.example.OnlineStore.exceptions.ProductsServiceException;
 import com.example.OnlineStore.models.Product;
@@ -53,13 +54,13 @@ public class ProductsService {
         String cacheKey = PRODUCT_CACHE_PREFIX +id;
         Product cachedProduct = redisTemplate.opsForValue().get(cacheKey);
 
+
         if (cachedProduct != null) {
             return cachedProduct;
         }
 
         Product product = productRepo.findById(id)
                 .orElseThrow(() -> new ProductsServiceException("Product not found with ID: " + id));
-
         redisTemplate.opsForValue().set(cacheKey, product);
         return product;
     }
