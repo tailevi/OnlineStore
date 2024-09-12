@@ -4,13 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name ="reviews")
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Reviews {
+public class Reviews implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -20,8 +22,7 @@ public class Reviews {
     String date;
     String reviewerName;
     String reviewerEmail;
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    @JsonIgnore
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "product_id")
     Product product;
 }

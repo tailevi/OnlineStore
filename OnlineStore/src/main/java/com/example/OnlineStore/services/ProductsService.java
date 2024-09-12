@@ -24,7 +24,7 @@ public class ProductsService {
 
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<String, Product> redisTemplate;
 
     private static final String PRODUCT_CACHE_PREFIX = "product_";
 
@@ -46,11 +46,12 @@ public class ProductsService {
     }
 
     @SneakyThrows
+    @Transactional
     public Product findById(@NotNull ProductRequest productRequest){
         Long id =  productRequest.getId();
 
         String cacheKey = PRODUCT_CACHE_PREFIX +id;
-        Product cachedProduct = (Product) redisTemplate.opsForValue().get(cacheKey);
+        Product cachedProduct = redisTemplate.opsForValue().get(cacheKey);
 
         if (cachedProduct != null) {
             return cachedProduct;
