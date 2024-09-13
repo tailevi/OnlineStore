@@ -1,4 +1,7 @@
 package com.example.OnlineStore.services;
+import com.example.OnlineStore.models.ProductDTO;
+import com.example.OnlineStore.models.Reviews;
+import com.example.OnlineStore.models.ReviewsDTO;
 import org.hibernate.Hibernate;
 import org.springframework.data.redis.core.RedisTemplate;
 import com.example.OnlineStore.exceptions.ProductsServiceException;
@@ -14,8 +17,10 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +30,13 @@ public class ProductsService {
 
 
     @Autowired
-    private RedisTemplate<String, Product> redisTemplate;
+    private RedisTemplate<String, ProductDTO> redisTemplate;
+
+    @Autowired
+    private RedisTemplate<String, List<ReviewsDTO>> reviewRedisTemplate;
 
     private static final String PRODUCT_CACHE_PREFIX = "product_";
+    private static final String PRODUCT_CACHE_REVIEW_PREFIX = "reviews_";
 
     public List<Product> getAll() {
         return productRepo.findAll();
@@ -48,21 +57,55 @@ public class ProductsService {
 
     @SneakyThrows
     @Transactional
-    public Product findById(@NotNull ProductRequest productRequest){
+    public ProductDTO findById(@NotNull ProductRequest productRequest){
         Long id =  productRequest.getId();
 
         String cacheKey = PRODUCT_CACHE_PREFIX +id;
-        Product cachedProduct = redisTemplate.opsForValue().get(cacheKey);
+        ProductDTO cachedProduct = redisTemplate.opsForValue().get(cacheKey);
 
 
         if (cachedProduct != null) {
+            List<ReviewsDTO> reviewsList = reviewRedisTemplate.opsForValue().get(PRODUCT_CACHE_REVIEW_PREFIX + id);
+            cachedProduct.setReviewsDTOList(reviewsList);
             return cachedProduct;
         }
 
         Product product = productRepo.findById(id)
                 .orElseThrow(() -> new ProductsServiceException("Product not found with ID: " + id));
-        redisTemplate.opsForValue().set(cacheKey, product);
-        return product;
+        ProductDTO productDTO = mapToDTO(product);
+        redisTemplate.opsForValue().set(cacheKey, productDTO);
+        List <ReviewsDTO> reviewsList = getCachedReviews(productDTO.getId(), product);
+        productDTO.setReviewsDTOList(reviewsList);
+        return productDTO;
+    }
+
+    private ProductDTO mapToDTO(Product product){
+        return ProductDTO.builder()
+                .id(product.getId())
+                .category(product.getCategory())
+                .title(product.getTitle())
+                .build();
+    }
+
+    @Transactional
+    private List<ReviewsDTO> getCachedReviews(Long id, Product cachedProduct) {
+        String cacheKey = PRODUCT_CACHE_REVIEW_PREFIX + id;
+
+        List<ReviewsDTO> reviewsDTOList = reviewRedisTemplate.opsForValue().get(cacheKey);
+
+        if (reviewsDTOList != null) {
+            return reviewsDTOList;
+        }
+        List<Reviews> reviews = (cachedProduct.getReviews() != null && !cachedProduct.getReviews().isEmpty())
+                ? cachedProduct.getReviews()
+                : new ArrayList<>();
+
+        reviewsDTOList = reviews.stream()
+                .map(this::mapToReviewDTO)
+                .collect(Collectors.toList());
+        reviewRedisTemplate.opsForValue().set(cacheKey, reviewsDTOList);
+
+        return reviewsDTOList;
     }
 
     @SneakyThrows
@@ -95,6 +138,14 @@ public class ProductsService {
                 .build();
     }
 
+    private ReviewsDTO mapToReviewDTO(Reviews review) {
+        ReviewsDTO reviewDTO = new ReviewsDTO();
+        reviewDTO.setId(review.getId());
+        reviewDTO.setComment(review.getComment());
+        reviewDTO.setRating(review.getRating());
+        return reviewDTO;
+    }
+
     @Transactional
     public GenericResponses updateProduct(@NotNull ProductRequest productRequest){
             Optional<Product> productOptional = productRepo.findById(productRequest.getId());
@@ -122,7 +173,8 @@ public class ProductsService {
                 productRepo.save(existingProduct);
 
                 String cacheKey = PRODUCT_CACHE_PREFIX + productRequest.getId();
-                redisTemplate.opsForValue().set(cacheKey, existingProduct);
+                ProductDTO productDTO = mapToDTO(existingProduct);
+                redisTemplate.opsForValue().set(cacheKey, productDTO);
 
                 return GenericResponses.builder()
                         .id(existingProduct.getId())
