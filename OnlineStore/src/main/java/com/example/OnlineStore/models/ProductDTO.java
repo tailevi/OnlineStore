@@ -16,5 +16,19 @@ public class ProductDTO {
     String title;
     String description;
     String category;
+    Integer price;
+    Float discountPercentage;
+    Float rating;
+    Integer stock;
+    List<String> tags;
+    String brand;
+    String sku;
+    Integer weight;
+    String warrantyInformation;
+    String shippingInformation;
+    String availabilityStatus;
     List<ReviewsDTO> reviewsDTOList;
+    String returnPolicy;
+    String thumbnail;
+    List<String>images;
 }
