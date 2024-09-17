@@ -1,8 +1,9 @@
 package com.example.OnlineStore.models;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.io.Serializable;
 
 @Entity
 @Table(name ="reviews")
@@ -10,7 +11,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Reviews {
+public class Reviews implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -20,8 +21,4 @@ public class Reviews {
     String date;
     String reviewerName;
     String reviewerEmail;
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    @JsonIgnore
-    Product product;
 }

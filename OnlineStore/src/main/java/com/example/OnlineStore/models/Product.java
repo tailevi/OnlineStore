@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Cascade;
 
+import java.io.Serializable;
 import java.util.List;
 @Entity
 @Table(name ="product")
@@ -15,7 +16,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product {
+public class Product implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -34,8 +35,8 @@ public class Product {
     String warrantyInformation;
     String shippingInformation;
     String availabilityStatus;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id", referencedColumnName = "id")
     List<Reviews> reviews;
     String returnPolicy;
     String thumbnail;

@@ -2,6 +2,7 @@ package com.example.OnlineStore.controllers;
 
 import com.example.OnlineStore.exceptions.RuntimeErrorResponse;
 import com.example.OnlineStore.models.Product;
+import com.example.OnlineStore.models.ProductDTO;
 import com.example.OnlineStore.payload.request.ProductRequest;
 import com.example.OnlineStore.payload.response.GenericResponses;
 import com.example.OnlineStore.payload.response.ResponseEnum;
@@ -21,11 +22,6 @@ public class ProductController {
     @Autowired
     private ProductsService productsService;
 
-    @GetMapping(value ="/print")
-    public ResponseEntity<String> print(){
-        return ResponseEntity.ok(productsService.print());
-    }
-
     @GetMapping(value ="/getAll")
     public ResponseEntity<List<Product>> getAll(){
         return ResponseEntity.ok(productsService.getAll());
@@ -36,7 +32,7 @@ public class ProductController {
         return ResponseEntity.ok(productsService.deleteProduct(productRequest));
     }
     @GetMapping(value = "/findProductById")
-    public ResponseEntity<Product> findProductById(@RequestBody ProductRequest productRequest){
+    public ResponseEntity<ProductDTO> findProductById(@RequestBody ProductRequest productRequest){
         return ResponseEntity.ok(productsService.findById(productRequest));
     }
 
