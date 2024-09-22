@@ -1,4 +1,5 @@
 package com.example.OnlineStore.services;
+import com.example.OnlineStore.annotations.LogUpdate;
 import com.example.OnlineStore.models.ProductDTO;
 import com.example.OnlineStore.models.Reviews;
 import com.example.OnlineStore.models.ReviewsDTO;
@@ -27,8 +28,7 @@ import java.util.stream.Collectors;
 public class ProductsService {
     @Autowired
     private ProductRepo productRepo;
-
-
+    
     @Autowired
     private RedisTemplate<String, ProductDTO> redisTemplate;
 
@@ -38,11 +38,13 @@ public class ProductsService {
     private static final String PRODUCT_CACHE_PREFIX = "product_";
     private static final String PRODUCT_CACHE_REVIEW_PREFIX = "reviews_";
 
+    @LogUpdate
     public List<Product> getAll() {
         return productRepo.findAll();
     }
 
     @SneakyThrows
+    @LogUpdate
     public ResponseEnum deleteProduct(ProductRequest productRequest){
         try {
             productRepo.deleteById(productRequest.getId());
@@ -57,12 +59,12 @@ public class ProductsService {
 
     @SneakyThrows
     @Transactional
+    @LogUpdate
     public ProductDTO findById(@NotNull ProductRequest productRequest){
         Long id =  productRequest.getId();
 
         String cacheKey = PRODUCT_CACHE_PREFIX +id;
         ProductDTO cachedProduct = redisTemplate.opsForValue().get(cacheKey);
-
 
         if (cachedProduct != null) {
             List<ReviewsDTO> reviewsList = reviewRedisTemplate.opsForValue().get(PRODUCT_CACHE_REVIEW_PREFIX + id);
@@ -82,8 +84,21 @@ public class ProductsService {
     private ProductDTO mapToDTO(Product product){
         return ProductDTO.builder()
                 .id(product.getId())
-                .category(product.getCategory())
                 .title(product.getTitle())
+                .brand(product.getBrand())
+                .price(product.getPrice())
+                .sku(product.getSku())
+                .availabilityStatus(product.getAvailabilityStatus())
+                .category(product.getCategory())
+                .description(product.getDescription())
+                .stock(product.getStock())
+                .discountPercentage(product.getDiscountPercentage())
+                .images(product.getImages())
+                .weight(product.getWeight())
+                .thumbnail(product.getThumbnail())
+                .returnPolicy(product.getReturnPolicy())
+                .warrantyInformation(product.getWarrantyInformation())
+                .shippingInformation(product.getShippingInformation())
                 .build();
     }
 
@@ -110,6 +125,7 @@ public class ProductsService {
 
     @SneakyThrows
     @Transactional
+    @LogUpdate
     public GenericResponses addProduct(@NotNull ProductRequest productRequest) {
         Product product = Product.builder()
                 .title(productRequest.getTitle())
@@ -147,6 +163,7 @@ public class ProductsService {
     }
 
     @Transactional
+    @LogUpdate
     public GenericResponses updateProduct(@NotNull ProductRequest productRequest){
             Optional<Product> productOptional = productRepo.findById(productRequest.getId());
 
